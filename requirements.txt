@@ -1,8 +1,10 @@
-﻿streamlit
+streamlit
 groq
 python-dotenv
-chromadb
+faiss-cpu
+langchain-text-splitters
 sentence-transformers
+numpy
 pypdf
 pytesseract
 pdf2image
