@@ -1,7 +1,9 @@
 import os
 import streamlit as st
 from dotenv import load_dotenv
-import chromadb
+import numpy as np
+import faiss
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 from sentence_transformers import SentenceTransformer
 from groq import Groq
 import pytesseract
@@ -43,29 +45,17 @@ if uploaded_file is not None:
             full_text = re.sub(r' {2,}', ' ', full_text)
             full_text = full_text.strip()
 
-            def chunk_text(text, chunk_size=500, overlap=50):
-                chunks = []
-                start = 0
-                while start < len(text):
-                    end = start + chunk_size
-                    chunk = text[start:end].strip()
-                    if len(chunk) > 20:
-                        chunks.append(chunk)
-                    start += chunk_size - overlap
-                return chunks
+            # Chunking with LangChain's splitter (500 chars, 50 overlap)
+            splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
+            chunks = [c for c in splitter.split_text(full_text) if len(c.strip()) > 20]
 
-            chunks = chunk_text(full_text)
-            embeddings = embed_model.encode(chunks)
+            # Embed chunks and build FAISS index (normalized -> inner product = cosine similarity)
+            embeddings = embed_model.encode(chunks, normalize_embeddings=True)
+            index = faiss.IndexFlatIP(embeddings.shape[1])
+            index.add(np.array(embeddings, dtype="float32"))
 
-            client_db = chromadb.Client()
-            collection = client_db.get_or_create_collection(name="session_docs")
-            collection.add(
-                documents=chunks,
-                embeddings=embeddings.tolist(),
-                ids=[f"chunk_{i}" for i in range(len(chunks))]
-            )
-
-            st.session_state.collection = collection
+            st.session_state.chunks = chunks
+            st.session_state.index = index
             st.session_state.processed_file = uploaded_file.name
 
         st.success(f"Processed {len(chunks)} chunks from your document!")
@@ -73,10 +63,10 @@ if uploaded_file is not None:
     question = st.text_input("Your question:")
 
     if question:
-        collection = st.session_state.collection
-        question_embedding = embed_model.encode([question])
-        results = collection.query(query_embeddings=question_embedding.tolist(), n_results=3)
-        retrieved_chunks = results['documents'][0]
+        # Embed the question with the same model, retrieve top-3 chunks from FAISS
+        q_emb = embed_model.encode([question], normalize_embeddings=True)
+        scores, ids = st.session_state.index.search(np.array(q_emb, dtype="float32"), k=3)
+        retrieved_chunks = [st.session_state.chunks[i] for i in ids[0]]
         context = "\n\n".join(retrieved_chunks)
 
         prompt = f"""Answer the question using ONLY the context below.
@@ -100,4 +90,4 @@ Question: {question}
         with st.expander("Sources used"):
             for i, chunk in enumerate(retrieved_chunks):
                 st.markdown(f"**Chunk {i+1}:**")
-                st.text(chunk)
+                st.write(chunk)
