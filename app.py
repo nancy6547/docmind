@@ -1,124 +1,98 @@
+"""DocMind: ask questions about any PDF, scanned ones included, and see which
+sentences of the answer the document actually supports."""
+import html
 import os
-import re
 
-import faiss
-import numpy as np
-import pytesseract
 import streamlit as st
 from dotenv import load_dotenv
-from groq import Groq
-from langchain_text_splitters import RecursiveCharacterTextSplitter
-from pdf2image import convert_from_bytes
-from pypdf import PdfReader
-from sentence_transformers import SentenceTransformer
+
+from docmind import core
 
 load_dotenv()
+NLI_MODEL = os.getenv("HALLUGUARD_MODEL", "cross-encoder/nli-deberta-v3-xsmall")
 
-if os.name == "nt":
-    pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
-    POPPLER_PATH = r"C:\Windows\poppler-26.02.0\Library\bin"
-else:
-    POPPLER_PATH = None
-
-CHUNK_SIZE = 500          # characters per chunk
-CHUNK_OVERLAP = 50        # characters shared between neighbouring chunks
-TOP_K = 3                 # chunks sent to the LLM
-MIN_PAGE_CHARS = 50       # a page with less text than this is treated as scanned -> OCR
-MIN_RELEVANCE = 0.25      # cosine similarity below this = "not in the document" (tunable)
+st.set_page_config(page_title="DocMind", page_icon="📄")
 
 
 @st.cache_resource
-def load_models():
-    embed_model = SentenceTransformer("all-MiniLM-L6-v2")
-    groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
-    return embed_model, groq_client
+def load_embedder():
+    return core.sentence_transformer_embedder()
 
 
-def clean(text: str) -> str:
-    text = re.sub(r"\n{2,}", "\n", text)
-    text = re.sub(r" {2,}", " ", text)
-    return text.strip()
+@st.cache_resource
+def load_llm():
+    return core.groq_llm()
 
 
-def extract_text(pdf_bytes: bytes):
-    """Use the PDF's own text layer when it has one; OCR only the pages that don't.
+@st.cache_resource
+def load_checker():
+    from halluguard import NLIScorer
 
-    Returns (full_text, text_pages, ocr_pages).
-    """
-    import io
-
-    reader = PdfReader(io.BytesIO(pdf_bytes))
-    page_texts = [(page.extract_text() or "") for page in reader.pages]
-    needs_ocr = [i for i, t in enumerate(page_texts) if len(t.strip()) < MIN_PAGE_CHARS]
-
-    if needs_ocr:
-        images = convert_from_bytes(pdf_bytes, poppler_path=POPPLER_PATH)
-        for i in needs_ocr:
-            page_texts[i] = pytesseract.image_to_string(images[i])
-
-    full_text = clean("\n".join(page_texts))
-    return full_text, len(page_texts) - len(needs_ocr), len(needs_ocr)
+    return NLIScorer(NLI_MODEL)
 
 
-embed_model, groq_client = load_models()
+def highlight(answer_text: str, report) -> str:
+    """Answer text with each sentence underlined green / amber / red by HalluGuard's verdict."""
+    from halluguard import CONTRADICTED, SUPPORTED
 
-st.title("DocMind — Ask Your Document")
-st.write("Upload a PDF (digital or scanned), then ask questions answered only from its content.")
-
-uploaded_file = st.file_uploader("Upload a PDF", type="pdf")
-
-if uploaded_file is not None:
-    if st.session_state.get("processed_file") != uploaded_file.name:
-        with st.spinner("Reading your PDF (scanned pages are OCR'd, which can take a minute)..."):
-            full_text, text_pages, ocr_pages = extract_text(uploaded_file.read())
-
-            splitter = RecursiveCharacterTextSplitter(chunk_size=CHUNK_SIZE, chunk_overlap=CHUNK_OVERLAP)
-            chunks = [c for c in splitter.split_text(full_text) if len(c.strip()) > 20]
-
-            # Normalized embeddings + inner product index = cosine similarity search
-            embeddings = embed_model.encode(chunks, normalize_embeddings=True)
-            index = faiss.IndexFlatIP(embeddings.shape[1])
-            index.add(np.array(embeddings, dtype="float32"))
-
-            st.session_state.chunks = chunks
-            st.session_state.index = index
-            st.session_state.processed_file = uploaded_file.name
-
-        st.success(
-            f"Processed {len(chunks)} chunks — {text_pages} page(s) read directly, {ocr_pages} page(s) via OCR."
+    colors = {SUPPORTED: "#1d8a4f", CONTRADICTED: "#d62f2f"}
+    parts, last = [], 0
+    for c in report.claims:
+        color = colors.get(c.verdict, "#c27c0e")
+        parts.append(html.escape(answer_text[last:c.start]))
+        parts.append(
+            f'<span title="{c.verdict} · support {c.support:.2f}" style="background:{color}1f;'
+            f'border-bottom:2px solid {color}">{html.escape(c.text)}</span>'
         )
+        last = c.end
+    parts.append(html.escape(answer_text[last:]))
+    return "".join(parts).replace("\n", "<br>")
+
+
+st.title("DocMind")
+st.write("Upload a PDF (digital or scanned) and ask questions. Answers come only from the document, and every sentence is checked against it.")
+
+with st.sidebar:
+    st.header("Settings")
+    verify = st.toggle("Check answers with HalluGuard", value=True, help="Each answer sentence is checked against the retrieved chunks with an NLI model.")
+    min_rel = st.slider("Relevance guard", 0.0, 0.8, core.MIN_RELEVANCE, 0.05, help="If the best chunk is less similar than this, DocMind says it doesn't know instead of calling the LLM.")
+
+uploaded = st.file_uploader("Upload a PDF", type="pdf")
+
+if uploaded is not None:
+    if st.session_state.get("processed_file") != uploaded.name:
+        with st.spinner("Reading your PDF (scanned pages are OCR'd, which can take a minute)..."):
+            ex = core.extract_text(uploaded.read())
+            chunks = core.chunk(ex.text)
+            st.session_state.index = core.build_index(chunks, load_embedder())
+            st.session_state.processed_file = uploaded.name
+            st.session_state.stats = (len(chunks), ex.text_pages, ex.ocr_pages)
+    n, tp, op = st.session_state.stats
+    st.success(f"Processed {n} chunks: {tp} page(s) read directly, {op} page(s) via OCR.")
 
     question = st.text_input("Your question:")
-
     if question:
-        q_emb = embed_model.encode([question], normalize_embeddings=True)
-        scores, ids = st.session_state.index.search(np.array(q_emb, dtype="float32"), k=TOP_K)
-        hits = [(float(s), st.session_state.chunks[i]) for s, i in zip(scores[0], ids[0]) if i != -1]
+        with st.spinner("Thinking..."):
+            out = core.answer(question, st.session_state.index, load_llm(), min_relevance=min_rel)
 
         st.subheader("Answer")
-
-        # Relevance guard: if nothing in the document is close to the question, don't ask the LLM at all.
-        if not hits or hits[0][0] < MIN_RELEVANCE:
-            st.write("I don't know based on this document — nothing in it is closely related to that question.")
+        if out.refused or not verify:
+            st.write(out.text)
         else:
-            context = "\n\n".join(chunk for _, chunk in hits)
-            prompt = f"""Answer the question using ONLY the context below.
-If the answer isn't in the context, say "I don't know based on this document."
+            from halluguard import SUPPORTED, check
 
-Context:
-{context}
-
-Question: {question}
-"""
-            with st.spinner("Thinking..."):
-                response = groq_client.chat.completions.create(
-                    model="llama-3.3-70b-versatile",
-                    max_tokens=300,
-                    messages=[{"role": "user", "content": prompt}],
-                )
-            st.write(response.choices[0].message.content)
+            with st.spinner("Checking every sentence against the document..."):
+                rep = check(out.text, out.context, load_checker(), threshold=0.5)
+            st.markdown(f'<div style="line-height:1.9">{highlight(out.text, rep)}</div>', unsafe_allow_html=True)
+            flagged = [c for c in rep.claims if c.verdict != SUPPORTED]
+            if not rep.claims:
+                st.caption("Nothing to check in this answer.")
+            elif flagged:
+                st.warning(f"{len(flagged)} of {len(rep.claims)} sentences aren't clearly supported by the document. Hover them for details.")
+            else:
+                st.caption(f"All {len(rep.claims)} sentences are supported by the retrieved text.")
 
         with st.expander("Sources used"):
-            for n, (score, chunk) in enumerate(hits, start=1):
-                st.markdown(f"**Chunk {n}** · similarity {score:.2f}")
-                st.write(chunk)
+            for i, (score, text) in enumerate(out.hits, start=1):
+                st.markdown(f"**Chunk {i}** · similarity {score:.2f}")
+                st.write(text)

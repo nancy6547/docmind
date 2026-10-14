@@ -1,0 +1,42 @@
+{
+  "document": "eval/handbook.pdf",
+  "answerable": [
+    {"q": "Who founded Northwind Robotics?", "evidence": "Asha Raman and Tomas Berg", "answer": "Asha Raman"},
+    {"q": "When was the company founded?", "evidence": "founded in 2017", "answer": "2017"},
+    {"q": "How many people work at Northwind?", "evidence": "340 employees", "answer": "340"},
+    {"q": "Where is the headquarters?", "evidence": "headquarters is in Pune", "answer": "Pune"},
+    {"q": "What are the core working hours?", "evidence": "11:00 to 16:00", "answer": "11:00"},
+    {"q": "How many days of annual leave do I get?", "evidence": "24 days of paid annual leave", "answer": "24"},
+    {"q": "Can I carry unused vacation days into next year?", "evidence": "Up to 5 unused leave days", "answer": "5"},
+    {"q": "When do I need a doctor's note for sick leave?", "evidence": "longer than 3 consecutive days", "answer": "3"},
+    {"q": "How long is parental leave for the primary caregiver?", "evidence": "26 weeks at full pay", "answer": "26"},
+    {"q": "How many days a week can I work from home?", "evidence": "up to 2 days per week", "answer": "2"},
+    {"q": "When are salaries paid?", "evidence": "last working day of each month", "answer": "last working day"},
+    {"q": "When do salary reviews happen?", "evidence": "once a year, in April", "answer": "April"},
+    {"q": "How much is the home office allowance?", "evidence": "home office allowance of 600 euros", "answer": "600"},
+    {"q": "What is the yearly learning budget?", "evidence": "learning budget of 1,500 euros", "answer": "1,500"},
+    {"q": "How big is the referral bonus and when is it paid?", "evidence": "referral bonus of 2,000 euros", "answer": "2,000"},
+    {"q": "What protective gear is needed in the test warehouse?", "evidence": "safety shoes and a high-visibility vest", "answer": "safety shoes", "scanned": true},
+    {"q": "Where are hard hats required?", "evidence": "Rotterdam", "answer": "Rotterdam", "scanned": true},
+    {"q": "How fast can robots in test mode move when people are nearby?", "evidence": "1.2 metres per second", "answer": "1.2", "scanned": true},
+    {"q": "Who is allowed to press the emergency stop button?", "evidence": "Any employee may press it", "answer": "any employee", "scanned": true},
+    {"q": "How quickly must incidents be reported?", "evidence": "within 24 hours", "answer": "24 hours", "scanned": true},
+    {"q": "How long is the safety training for new hardware engineers?", "evidence": "2-day safety training", "answer": "2-day", "scanned": true},
+    {"q": "What is the minimum password length?", "evidence": "at least 14 characters", "answer": "14"},
+    {"q": "Where can customer warehouse data be stored?", "evidence": "Frankfurt data region", "answer": "Frankfurt"},
+    {"q": "How soon must a lost laptop be reported?", "evidence": "within 1 hour", "answer": "1 hour"},
+    {"q": "Which supplier gifts must be declared?", "evidence": "more than 50 euros", "answer": "50"}
+  ],
+  "unanswerable": [
+    "What is the company's annual revenue?",
+    "How much is the dental insurance coverage?",
+    "Does Northwind offer stock options to employees?",
+    "What is the dress code for client meetings?",
+    "How many robots has Northwind sold?",
+    "What is the notice period when resigning?",
+    "Is there a gym membership benefit?",
+    "Who is the current CTO?",
+    "What is the bonus for working on weekends?",
+    "Which programming languages does the robotics team use?"
+  ]
+}

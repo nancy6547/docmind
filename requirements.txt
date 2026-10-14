@@ -5,7 +5,9 @@ faiss-cpu
 langchain-text-splitters
 sentence-transformers
 numpy
+rank_bm25
 pypdf
 pytesseract
 pdf2image
 pillow
+halluguard @ git+https://github.com/nancy6547/halluguard.git
