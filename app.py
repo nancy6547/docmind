@@ -1,14 +1,16 @@
 import os
+import re
+
+import faiss
+import numpy as np
+import pytesseract
 import streamlit as st
 from dotenv import load_dotenv
-import numpy as np
-import faiss
-from langchain_text_splitters import RecursiveCharacterTextSplitter
-from sentence_transformers import SentenceTransformer
 from groq import Groq
-import pytesseract
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 from pdf2image import convert_from_bytes
-import re
+from pypdf import PdfReader
+from sentence_transformers import SentenceTransformer
 
 load_dotenv()
 
@@ -18,38 +20,62 @@ if os.name == "nt":
 else:
     POPPLER_PATH = None
 
+CHUNK_SIZE = 500          # characters per chunk
+CHUNK_OVERLAP = 50        # characters shared between neighbouring chunks
+TOP_K = 3                 # chunks sent to the LLM
+MIN_PAGE_CHARS = 50       # a page with less text than this is treated as scanned -> OCR
+MIN_RELEVANCE = 0.25      # cosine similarity below this = "not in the document" (tunable)
+
+
 @st.cache_resource
 def load_models():
-    embed_model = SentenceTransformer('all-MiniLM-L6-v2')
+    embed_model = SentenceTransformer("all-MiniLM-L6-v2")
     groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
     return embed_model, groq_client
+
+
+def clean(text: str) -> str:
+    text = re.sub(r"\n{2,}", "\n", text)
+    text = re.sub(r" {2,}", " ", text)
+    return text.strip()
+
+
+def extract_text(pdf_bytes: bytes):
+    """Use the PDF's own text layer when it has one; OCR only the pages that don't.
+
+    Returns (full_text, text_pages, ocr_pages).
+    """
+    import io
+
+    reader = PdfReader(io.BytesIO(pdf_bytes))
+    page_texts = [(page.extract_text() or "") for page in reader.pages]
+    needs_ocr = [i for i, t in enumerate(page_texts) if len(t.strip()) < MIN_PAGE_CHARS]
+
+    if needs_ocr:
+        images = convert_from_bytes(pdf_bytes, poppler_path=POPPLER_PATH)
+        for i in needs_ocr:
+            page_texts[i] = pytesseract.image_to_string(images[i])
+
+    full_text = clean("\n".join(page_texts))
+    return full_text, len(page_texts) - len(needs_ocr), len(needs_ocr)
+
 
 embed_model, groq_client = load_models()
 
 st.title("DocMind — Ask Your Document")
-st.write("Upload a PDF (even scanned ones), then ask questions grounded in its content.")
+st.write("Upload a PDF (digital or scanned), then ask questions answered only from its content.")
 
 uploaded_file = st.file_uploader("Upload a PDF", type="pdf")
 
 if uploaded_file is not None:
-    if "processed_file" not in st.session_state or st.session_state.processed_file != uploaded_file.name:
-        with st.spinner("Reading and OCR'ing your PDF... this may take a minute"):
-            pdf_bytes = uploaded_file.read()
-            pages = convert_from_bytes(pdf_bytes, poppler_path=POPPLER_PATH)
+    if st.session_state.get("processed_file") != uploaded_file.name:
+        with st.spinner("Reading your PDF (scanned pages are OCR'd, which can take a minute)..."):
+            full_text, text_pages, ocr_pages = extract_text(uploaded_file.read())
 
-            full_text = ""
-            for page_image in pages:
-                full_text += pytesseract.image_to_string(page_image) + "\n"
-
-            full_text = re.sub(r'\n{2,}', '\n', full_text)
-            full_text = re.sub(r' {2,}', ' ', full_text)
-            full_text = full_text.strip()
-
-            # Chunking with LangChain's splitter (500 chars, 50 overlap)
-            splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
+            splitter = RecursiveCharacterTextSplitter(chunk_size=CHUNK_SIZE, chunk_overlap=CHUNK_OVERLAP)
             chunks = [c for c in splitter.split_text(full_text) if len(c.strip()) > 20]
 
-            # Embed chunks and build FAISS index (normalized -> inner product = cosine similarity)
+            # Normalized embeddings + inner product index = cosine similarity search
             embeddings = embed_model.encode(chunks, normalize_embeddings=True)
             index = faiss.IndexFlatIP(embeddings.shape[1])
             index.add(np.array(embeddings, dtype="float32"))
@@ -58,18 +84,25 @@ if uploaded_file is not None:
             st.session_state.index = index
             st.session_state.processed_file = uploaded_file.name
 
-        st.success(f"Processed {len(chunks)} chunks from your document!")
+        st.success(
+            f"Processed {len(chunks)} chunks — {text_pages} page(s) read directly, {ocr_pages} page(s) via OCR."
+        )
 
     question = st.text_input("Your question:")
 
     if question:
-        # Embed the question with the same model, retrieve top-3 chunks from FAISS
         q_emb = embed_model.encode([question], normalize_embeddings=True)
-        scores, ids = st.session_state.index.search(np.array(q_emb, dtype="float32"), k=3)
-        retrieved_chunks = [st.session_state.chunks[i] for i in ids[0]]
-        context = "\n\n".join(retrieved_chunks)
+        scores, ids = st.session_state.index.search(np.array(q_emb, dtype="float32"), k=TOP_K)
+        hits = [(float(s), st.session_state.chunks[i]) for s, i in zip(scores[0], ids[0]) if i != -1]
 
-        prompt = f"""Answer the question using ONLY the context below.
+        st.subheader("Answer")
+
+        # Relevance guard: if nothing in the document is close to the question, don't ask the LLM at all.
+        if not hits or hits[0][0] < MIN_RELEVANCE:
+            st.write("I don't know based on this document — nothing in it is closely related to that question.")
+        else:
+            context = "\n\n".join(chunk for _, chunk in hits)
+            prompt = f"""Answer the question using ONLY the context below.
 If the answer isn't in the context, say "I don't know based on this document."
 
 Context:
@@ -77,17 +110,15 @@ Context:
 
 Question: {question}
 """
-        with st.spinner("Thinking..."):
-            response = groq_client.chat.completions.create(
-                model="llama-3.3-70b-versatile",
-                max_tokens=300,
-                messages=[{"role": "user", "content": prompt}]
-            )
-
-        st.subheader("Answer")
-        st.write(response.choices[0].message.content)
+            with st.spinner("Thinking..."):
+                response = groq_client.chat.completions.create(
+                    model="llama-3.3-70b-versatile",
+                    max_tokens=300,
+                    messages=[{"role": "user", "content": prompt}],
+                )
+            st.write(response.choices[0].message.content)
 
         with st.expander("Sources used"):
-            for i, chunk in enumerate(retrieved_chunks):
-                st.markdown(f"**Chunk {i+1}:**")
+            for n, (score, chunk) in enumerate(hits, start=1):
+                st.markdown(f"**Chunk {n}** · similarity {score:.2f}")
                 st.write(chunk)
