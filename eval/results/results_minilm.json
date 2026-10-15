@@ -1,0 +1,606 @@
+{
+  "embedder": "minilm",
+  "chunks": 12,
+  "ocr_pages": 1,
+  "retrieval_dense": {
+    "hit@1": 0.72,
+    "hit@3": 0.88,
+    "mrr": 0.8,
+    "rows": [
+      {
+        "q": "Who founded Northwind Robotics?",
+        "rank": 1,
+        "top_score": 0.6662551760673523,
+        "scanned": false
+      },
+      {
+        "q": "When was the company founded?",
+        "rank": 1,
+        "top_score": 0.26782312989234924,
+        "scanned": false
+      },
+      {
+        "q": "How many people work at Northwind?",
+        "rank": 1,
+        "top_score": 0.5377792716026306,
+        "scanned": false
+      },
+      {
+        "q": "Where is the headquarters?",
+        "rank": 1,
+        "top_score": 0.410341739654541,
+        "scanned": false
+      },
+      {
+        "q": "What are the core working hours?",
+        "rank": 1,
+        "top_score": 0.6850202083587646,
+        "scanned": false
+      },
+      {
+        "q": "How many days of annual leave do I get?",
+        "rank": 2,
+        "top_score": 0.5934286117553711,
+        "scanned": false
+      },
+      {
+        "q": "Can I carry unused vacation days into next year?",
+        "rank": 2,
+        "top_score": 0.3073658049106598,
+        "scanned": false
+      },
+      {
+        "q": "When do I need a doctor's note for sick leave?",
+        "rank": 1,
+        "top_score": 0.5536240339279175,
+        "scanned": false
+      },
+      {
+        "q": "How long is parental leave for the primary caregiver?",
+        "rank": 1,
+        "top_score": 0.7329204678535461,
+        "scanned": false
+      },
+      {
+        "q": "How many days a week can I work from home?",
+        "rank": 2,
+        "top_score": 0.5084313750267029,
+        "scanned": false
+      },
+      {
+        "q": "When are salaries paid?",
+        "rank": 1,
+        "top_score": 0.3871026039123535,
+        "scanned": false
+      },
+      {
+        "q": "When do salary reviews happen?",
+        "rank": 2,
+        "top_score": 0.3544698655605316,
+        "scanned": false
+      },
+      {
+        "q": "How much is the home office allowance?",
+        "rank": 1,
+        "top_score": 0.480774462223053,
+        "scanned": false
+      },
+      {
+        "q": "What is the yearly learning budget?",
+        "rank": 1,
+        "top_score": 0.44557905197143555,
+        "scanned": false
+      },
+      {
+        "q": "How big is the referral bonus and when is it paid?",
+        "rank": 1,
+        "top_score": 0.4243508577346802,
+        "scanned": false
+      },
+      {
+        "q": "What protective gear is needed in the test warehouse?",
+        "rank": null,
+        "top_score": 0.5024005770683289,
+        "scanned": true
+      },
+      {
+        "q": "Where are hard hats required?",
+        "rank": 1,
+        "top_score": 0.4997031092643738,
+        "scanned": true
+      },
+      {
+        "q": "How fast can robots in test mode move when people are nearby?",
+        "rank": 1,
+        "top_score": 0.47603920102119446,
+        "scanned": true
+      },
+      {
+        "q": "Who is allowed to press the emergency stop button?",
+        "rank": 1,
+        "top_score": 0.39055222272872925,
+        "scanned": true
+      },
+      {
+        "q": "How quickly must incidents be reported?",
+        "rank": null,
+        "top_score": 0.34084051847457886,
+        "scanned": true
+      },
+      {
+        "q": "How long is the safety training for new hardware engineers?",
+        "rank": null,
+        "top_score": 0.4471740424633026,
+        "scanned": true
+      },
+      {
+        "q": "What is the minimum password length?",
+        "rank": 1,
+        "top_score": 0.3614314794540405,
+        "scanned": false
+      },
+      {
+        "q": "Where can customer warehouse data be stored?",
+        "rank": 1,
+        "top_score": 0.5427775382995605,
+        "scanned": false
+      },
+      {
+        "q": "How soon must a lost laptop be reported?",
+        "rank": 1,
+        "top_score": 0.3767661452293396,
+        "scanned": false
+      },
+      {
+        "q": "Which supplier gifts must be declared?",
+        "rank": 1,
+        "top_score": 0.6934598684310913,
+        "scanned": false
+      }
+    ],
+    "scanned_hit": 0.5
+  },
+  "retrieval_hybrid": {
+    "hit@1": 0.8,
+    "hit@3": 0.96,
+    "mrr": 0.88,
+    "rows": [
+      {
+        "q": "Who founded Northwind Robotics?",
+        "rank": 1,
+        "top_score": 0.6662551760673523,
+        "scanned": false
+      },
+      {
+        "q": "When was the company founded?",
+        "rank": 1,
+        "top_score": 0.26782312989234924,
+        "scanned": false
+      },
+      {
+        "q": "How many people work at Northwind?",
+        "rank": 1,
+        "top_score": 0.5377792716026306,
+        "scanned": false
+      },
+      {
+        "q": "Where is the headquarters?",
+        "rank": 1,
+        "top_score": 0.410341739654541,
+        "scanned": false
+      },
+      {
+        "q": "What are the core working hours?",
+        "rank": 1,
+        "top_score": 0.6850202083587646,
+        "scanned": false
+      },
+      {
+        "q": "How many days of annual leave do I get?",
+        "rank": 2,
+        "top_score": 0.5934286117553711,
+        "scanned": false
+      },
+      {
+        "q": "Can I carry unused vacation days into next year?",
+        "rank": 1,
+        "top_score": 0.305736243724823,
+        "scanned": false
+      },
+      {
+        "q": "When do I need a doctor's note for sick leave?",
+        "rank": 1,
+        "top_score": 0.5536240339279175,
+        "scanned": false
+      },
+      {
+        "q": "How long is parental leave for the primary caregiver?",
+        "rank": 1,
+        "top_score": 0.7329204678535461,
+        "scanned": false
+      },
+      {
+        "q": "How many days a week can I work from home?",
+        "rank": 2,
+        "top_score": 0.5084313750267029,
+        "scanned": false
+      },
+      {
+        "q": "When are salaries paid?",
+        "rank": 1,
+        "top_score": 0.3871026039123535,
+        "scanned": false
+      },
+      {
+        "q": "When do salary reviews happen?",
+        "rank": 1,
+        "top_score": 0.3473314642906189,
+        "scanned": false
+      },
+      {
+        "q": "How much is the home office allowance?",
+        "rank": 1,
+        "top_score": 0.480774462223053,
+        "scanned": false
+      },
+      {
+        "q": "What is the yearly learning budget?",
+        "rank": 1,
+        "top_score": 0.44557905197143555,
+        "scanned": false
+      },
+      {
+        "q": "How big is the referral bonus and when is it paid?",
+        "rank": 1,
+        "top_score": 0.4243508577346802,
+        "scanned": false
+      },
+      {
+        "q": "What protective gear is needed in the test warehouse?",
+        "rank": null,
+        "top_score": 0.21416446566581726,
+        "scanned": true
+      },
+      {
+        "q": "Where are hard hats required?",
+        "rank": 1,
+        "top_score": 0.4997031092643738,
+        "scanned": true
+      },
+      {
+        "q": "How fast can robots in test mode move when people are nearby?",
+        "rank": 1,
+        "top_score": 0.47603920102119446,
+        "scanned": true
+      },
+      {
+        "q": "Who is allowed to press the emergency stop button?",
+        "rank": 1,
+        "top_score": 0.39055222272872925,
+        "scanned": true
+      },
+      {
+        "q": "How quickly must incidents be reported?",
+        "rank": 2,
+        "top_score": 0.21620851755142212,
+        "scanned": true
+      },
+      {
+        "q": "How long is the safety training for new hardware engineers?",
+        "rank": 1,
+        "top_score": 0.3330531716346741,
+        "scanned": true
+      },
+      {
+        "q": "What is the minimum password length?",
+        "rank": 2,
+        "top_score": 0.19637805223464966,
+        "scanned": false
+      },
+      {
+        "q": "Where can customer warehouse data be stored?",
+        "rank": 1,
+        "top_score": 0.5427775382995605,
+        "scanned": false
+      },
+      {
+        "q": "How soon must a lost laptop be reported?",
+        "rank": 1,
+        "top_score": 0.3767661452293396,
+        "scanned": false
+      },
+      {
+        "q": "Which supplier gifts must be declared?",
+        "rank": 1,
+        "top_score": 0.6934598684310913,
+        "scanned": false
+      }
+    ],
+    "scanned_hit": 0.8333333333333334
+  },
+  "retrieval": {
+    "hit@1": 0.8,
+    "hit@3": 0.96,
+    "mrr": 0.88,
+    "rows": [
+      {
+        "q": "Who founded Northwind Robotics?",
+        "rank": 1,
+        "top_score": 0.6662551760673523,
+        "scanned": false
+      },
+      {
+        "q": "When was the company founded?",
+        "rank": 1,
+        "top_score": 0.26782312989234924,
+        "scanned": false
+      },
+      {
+        "q": "How many people work at Northwind?",
+        "rank": 1,
+        "top_score": 0.5377792716026306,
+        "scanned": false
+      },
+      {
+        "q": "Where is the headquarters?",
+        "rank": 1,
+        "top_score": 0.410341739654541,
+        "scanned": false
+      },
+      {
+        "q": "What are the core working hours?",
+        "rank": 1,
+        "top_score": 0.6850202083587646,
+        "scanned": false
+      },
+      {
+        "q": "How many days of annual leave do I get?",
+        "rank": 2,
+        "top_score": 0.5934286117553711,
+        "scanned": false
+      },
+      {
+        "q": "Can I carry unused vacation days into next year?",
+        "rank": 1,
+        "top_score": 0.305736243724823,
+        "scanned": false
+      },
+      {
+        "q": "When do I need a doctor's note for sick leave?",
+        "rank": 1,
+        "top_score": 0.5536240339279175,
+        "scanned": false
+      },
+      {
+        "q": "How long is parental leave for the primary caregiver?",
+        "rank": 1,
+        "top_score": 0.7329204678535461,
+        "scanned": false
+      },
+      {
+        "q": "How many days a week can I work from home?",
+        "rank": 2,
+        "top_score": 0.5084313750267029,
+        "scanned": false
+      },
+      {
+        "q": "When are salaries paid?",
+        "rank": 1,
+        "top_score": 0.3871026039123535,
+        "scanned": false
+      },
+      {
+        "q": "When do salary reviews happen?",
+        "rank": 1,
+        "top_score": 0.3473314642906189,
+        "scanned": false
+      },
+      {
+        "q": "How much is the home office allowance?",
+        "rank": 1,
+        "top_score": 0.480774462223053,
+        "scanned": false
+      },
+      {
+        "q": "What is the yearly learning budget?",
+        "rank": 1,
+        "top_score": 0.44557905197143555,
+        "scanned": false
+      },
+      {
+        "q": "How big is the referral bonus and when is it paid?",
+        "rank": 1,
+        "top_score": 0.4243508577346802,
+        "scanned": false
+      },
+      {
+        "q": "What protective gear is needed in the test warehouse?",
+        "rank": null,
+        "top_score": 0.21416446566581726,
+        "scanned": true
+      },
+      {
+        "q": "Where are hard hats required?",
+        "rank": 1,
+        "top_score": 0.4997031092643738,
+        "scanned": true
+      },
+      {
+        "q": "How fast can robots in test mode move when people are nearby?",
+        "rank": 1,
+        "top_score": 0.47603920102119446,
+        "scanned": true
+      },
+      {
+        "q": "Who is allowed to press the emergency stop button?",
+        "rank": 1,
+        "top_score": 0.39055222272872925,
+        "scanned": true
+      },
+      {
+        "q": "How quickly must incidents be reported?",
+        "rank": 2,
+        "top_score": 0.21620851755142212,
+        "scanned": true
+      },
+      {
+        "q": "How long is the safety training for new hardware engineers?",
+        "rank": 1,
+        "top_score": 0.3330531716346741,
+        "scanned": true
+      },
+      {
+        "q": "What is the minimum password length?",
+        "rank": 2,
+        "top_score": 0.19637805223464966,
+        "scanned": false
+      },
+      {
+        "q": "Where can customer warehouse data be stored?",
+        "rank": 1,
+        "top_score": 0.5427775382995605,
+        "scanned": false
+      },
+      {
+        "q": "How soon must a lost laptop be reported?",
+        "rank": 1,
+        "top_score": 0.3767661452293396,
+        "scanned": false
+      },
+      {
+        "q": "Which supplier gifts must be declared?",
+        "rank": 1,
+        "top_score": 0.6934598684310913,
+        "scanned": false
+      }
+    ],
+    "scanned_hit": 0.8333333333333334
+  },
+  "guard": {
+    "rows": [
+      {
+        "threshold": 0.05,
+        "answerable_let_through": 1.0,
+        "unanswerable_refused": 0.0,
+        "balanced": 0.5
+      },
+      {
+        "threshold": 0.1,
+        "answerable_let_through": 1.0,
+        "unanswerable_refused": 0.0,
+        "balanced": 0.5
+      },
+      {
+        "threshold": 0.15,
+        "answerable_let_through": 1.0,
+        "unanswerable_refused": 0.0,
+        "balanced": 0.5
+      },
+      {
+        "threshold": 0.2,
+        "answerable_let_through": 1.0,
+        "unanswerable_refused": 0.1,
+        "balanced": 0.55
+      },
+      {
+        "threshold": 0.25,
+        "answerable_let_through": 1.0,
+        "unanswerable_refused": 0.2,
+        "balanced": 0.6
+      },
+      {
+        "threshold": 0.3,
+        "answerable_let_through": 0.96,
+        "unanswerable_refused": 0.4,
+        "balanced": 0.6799999999999999
+      },
+      {
+        "threshold": 0.35,
+        "answerable_let_through": 0.88,
+        "unanswerable_refused": 0.6,
+        "balanced": 0.74
+      },
+      {
+        "threshold": 0.4,
+        "answerable_let_through": 0.68,
+        "unanswerable_refused": 0.7,
+        "balanced": 0.69
+      },
+      {
+        "threshold": 0.45,
+        "answerable_let_through": 0.52,
+        "unanswerable_refused": 0.8,
+        "balanced": 0.66
+      },
+      {
+        "threshold": 0.5,
+        "answerable_let_through": 0.4,
+        "unanswerable_refused": 0.9,
+        "balanced": 0.65
+      },
+      {
+        "threshold": 0.55,
+        "answerable_let_through": 0.24,
+        "unanswerable_refused": 0.9,
+        "balanced": 0.5700000000000001
+      },
+      {
+        "threshold": 0.6,
+        "answerable_let_through": 0.16,
+        "unanswerable_refused": 0.9,
+        "balanced": 0.53
+      },
+      {
+        "threshold": 0.65,
+        "answerable_let_through": 0.16,
+        "unanswerable_refused": 1.0,
+        "balanced": 0.58
+      }
+    ],
+    "best": {
+      "threshold": 0.35,
+      "answerable_let_through": 0.88,
+      "unanswerable_refused": 0.6,
+      "balanced": 0.74
+    },
+    "answerable_scores": [
+      0.6662551760673523,
+      0.26782312989234924,
+      0.5377792716026306,
+      0.410341739654541,
+      0.6850202083587646,
+      0.5934286117553711,
+      0.3073658049106598,
+      0.5536240339279175,
+      0.7329204678535461,
+      0.5084313750267029,
+      0.3871026039123535,
+      0.3544698655605316,
+      0.480774462223053,
+      0.44557905197143555,
+      0.4243508577346802,
+      0.5024005770683289,
+      0.4997031092643738,
+      0.47603920102119446,
+      0.39055222272872925,
+      0.34084051847457886,
+      0.4471740424633026,
+      0.3614314794540405,
+      0.5427775382995605,
+      0.3767661452293396,
+      0.6934598684310913
+    ],
+    "unanswerable_scores": [
+      0.25754305720329285,
+      0.2117367684841156,
+      0.470345139503479,
+      0.33191293478012085,
+      0.6374002695083618,
+      0.36221861839294434,
+      0.2605386972427368,
+      0.19988927245140076,
+      0.40142345428466797,
+      0.3282061815261841
+    ]
+  }
+}

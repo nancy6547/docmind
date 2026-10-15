@@ -59,7 +59,16 @@ It reports:
 - **Grounding** (`--halluguard`): share of answers with every sentence supported.
 
 <!-- EVAL:START -->
-Run `python eval/run_eval.py` to fill in this section.
+Results on `eval/handbook.pdf` (12 chunks, 1 scanned page), all-MiniLM-L6-v2, top 3:
+
+| Retrieval | hit@1 | hit@3 | MRR | Scanned-page questions found |
+|---|---|---|---|---|
+| dense | 72% | 88% | 0.80 | 50% |
+| hybrid | 80% | 96% | 0.88 | 83% |
+
+Hybrid search puts the right chunk in the top 3 for **96%** of questions, vs 88% with embeddings alone. The biggest gain is on the scanned page (50% → 83%), likely because exact keywords still match when OCR text is messy.
+
+Relevance guard: at the current setting (0.25) it lets 100% of answerable questions through but refuses only 20% of unanswerable ones on its own; the LLM's "I don't know" instruction is the second line of defence. On this set 0.35 balances best (88% through, 60% refused), but that's picked on the same questions it's scored on, so the default stays until it's checked on a separate question set.
 <!-- EVAL:END -->
 
 ## What I learned building it
