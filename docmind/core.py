@@ -75,11 +75,20 @@ class Index:
     bm25: object = None
     mode: str = "hybrid"  # "dense" or "hybrid"
 
-    def dense(self, question: str, k: int) -> list[tuple[float, int]]:
+    _qcache: dict = field(default_factory=dict, repr=False)
+
+    def _qvec(self, question: str):
+        """Embed each question once, even though search() and the relevance guard both need it."""
         import numpy as np
 
-        q = np.asarray(self.embed([question]), dtype="float32")
-        scores, ids = self.faiss_index.search(q, k)
+        if question not in self._qcache:
+            if len(self._qcache) > 64:
+                self._qcache.clear()
+            self._qcache[question] = np.asarray(self.embed([question]), dtype="float32")
+        return self._qcache[question]
+
+    def dense(self, question: str, k: int) -> list[tuple[float, int]]:
+        scores, ids = self.faiss_index.search(self._qvec(question), k)
         return [(float(s), int(i)) for s, i in zip(scores[0], ids[0]) if i != -1]
 
     def best_similarity(self, question: str) -> float:

@@ -4,7 +4,7 @@
 
 **Ask questions about any PDF, including scanned ones. Answers come only from the document, and every sentence of the answer is checked against it.**
 
-**Live demo:** https://docmind-4trkdxlqhqz3mtx3wnmpja.streamlit.app/
+**Live demo:** https://docmind-4trkdxlqhqz3mtx3wnmpja.streamlit.app/ (click **Try a sample PDF** to try it without uploading anything)
 
 DocMind is a retrieval-augmented generation (RAG) app built from scratch. It has text extraction with an OCR fallback, hybrid search (embeddings + BM25), a relevance guard, and an LLM that may only answer from the retrieved text. Each answer sentence is then verified with [HalluGuard](https://github.com/nancy6547/halluguard) and highlighted green, amber or red. It ships with an evaluation set, so retrieval quality and the guard's threshold are measured, not guessed.
 
